@@ -20,30 +20,6 @@ resource "aws_cloudwatch_log_group" "logs" {
   name = "aws-elasticsearch-${var.domain}-logs"
 }
 
-resource "aws_cloudwatch_log_resource_policy" "logs_policy" {
-  policy_name = "aws-elasticsearch-${var.domain}-logs-policy"
-
-  policy_document = <<CONFIG
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "es.amazonaws.com"
-      },
-      "Action": [
-        "logs:PutLogEvents",
-        "logs:PutLogEventsBatch",
-        "logs:CreateLogStream"
-      ],
-      "Resource": "arn:aws:logs:*"
-    }
-  ]
-}
-CONFIG
-}
-
 data "aws_caller_identity" "current" {
 }
 
