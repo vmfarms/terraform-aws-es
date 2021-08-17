@@ -16,8 +16,13 @@ resource "aws_security_group" "es" {
   }
 }
 
+locals {
+  log_groups_being_created = var.create_log_group == true ? ["INDEX_SLOW_LOGS", "SEARCH_SLOW_LOGS", "ES_APPLICATION_LOGS"] : []
+}
+
 resource "aws_cloudwatch_log_group" "logs" {
-  name = "aws-elasticsearch-${var.domain}-logs"
+  count = var.create_log_group ? 1 : 0
+  name  = "aws-elasticsearch-${var.domain}-logs"
 }
 
 data "aws_caller_identity" "current" {
@@ -70,7 +75,7 @@ POLICY
   }
 
   dynamic "log_publishing_options" {
-    for_each = ["INDEX_SLOW_LOGS", "SEARCH_SLOW_LOGS", "ES_APPLICATION_LOGS"]
+    for_each = local.log_groups_being_created
     content {
       cloudwatch_log_group_arn = aws_cloudwatch_log_group.logs.arn
       log_type                 = log_publishing_options.value

@@ -96,3 +96,9 @@ variable "ebs_type" {
   description = "Ebs type of volume"
   default     = "gp2"
 }
+
+variable "create_log_group" {
+  type        = bool
+  description = "Boolean that defines if the Log Group will be created or not"
+  default     = false
+}
