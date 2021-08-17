@@ -16,6 +16,15 @@ resource "aws_security_group" "es" {
   }
 }
 
+locals {
+  log_groups_being_created = var.create_log_group == true ? ["INDEX_SLOW_LOGS", "SEARCH_SLOW_LOGS", "ES_APPLICATION_LOGS"] : []
+}
+
+resource "aws_cloudwatch_log_group" "logs" {
+  count = var.create_log_group
+  name  = "aws-elasticsearch-${var.domain}-logs"
+}
+
 data "aws_caller_identity" "current" {
 }
 
@@ -63,6 +72,14 @@ POLICY
     ebs_enabled = "true"
     volume_type = var.ebs_type != null ? var.ebs_type : "gp2"
     volume_size = var.volume_size
+  }
+
+  dynamic "log_publishing_options" {
+    for_each = local.log_groups_being_created
+    content {
+      cloudwatch_log_group_arn = aws_cloudwatch_log_group.logs.arn
+      log_type                 = log_publishing_options.value
+    }
   }
 
   tags = merge({ Domain = var.domain }, var.tags)
