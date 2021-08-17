@@ -21,7 +21,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  count = var.create_log_group
+  count = var.create_log_group ? 1 : 0
   name  = "aws-elasticsearch-${var.domain}-logs"
 }
 
