@@ -7,6 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] - 2021-08-17
 
-### Removed
+### Added
 
--  Cloudwatch log groups being added
+-  Optional boolean to create log groups or not
