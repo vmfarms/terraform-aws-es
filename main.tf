@@ -21,8 +21,33 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  count = var.create_log_group ? 1 : 0
+  count = var.create_log_group == true ? 1 : 0
   name  = "aws-elasticsearch-${var.domain}-logs"
+}
+
+resource "aws_cloudwatch_log_resource_policy" "logs_policy" {
+  count       = var.create_log_group == true ? 1 : 0
+  policy_name = "aws-elasticsearch-${var.domain}-logs-policy"
+
+  policy_document = <<CONFIG
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "es.amazonaws.com"
+      },
+      "Action": [
+        "logs:PutLogEvents",
+        "logs:PutLogEventsBatch",
+        "logs:CreateLogStream"
+      ],
+      "Resource": "arn:aws:logs:*"
+    }
+  ]
+}
+CONFIG
 }
 
 data "aws_caller_identity" "current" {
@@ -77,7 +102,7 @@ POLICY
   dynamic "log_publishing_options" {
     for_each = local.log_groups_being_created
     content {
-      cloudwatch_log_group_arn = aws_cloudwatch_log_group.logs.arn
+      cloudwatch_log_group_arn = aws_cloudwatch_log_group.logs[0].arn
       log_type                 = log_publishing_options.value
     }
   }
@@ -88,4 +113,3 @@ POLICY
     aws_iam_service_linked_role.es,
   ]
 }
-
