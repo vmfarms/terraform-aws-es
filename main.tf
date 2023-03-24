@@ -114,6 +114,6 @@ POLICY
   ]
 
   lifecycle {
-    ignore_changes = [log_publishing_options]
+    ignore_changes = [advanced_options,log_publishing_options]
   }
 }
