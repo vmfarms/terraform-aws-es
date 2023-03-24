@@ -112,4 +112,8 @@ POLICY
   depends_on = [
     aws_iam_service_linked_role.es,
   ]
+
+  lifecycle {
+    ignore_changes = [log_publishing_options]
+  }
 }
