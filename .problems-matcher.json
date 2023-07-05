@@ -1,0 +1,31 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "tflint-compact",
+      "pattern": [
+        {
+          "code": 6,
+          "column": 3,
+          "file": 1,
+          "line": 2,
+          "message": 5,
+          "regexp": "^(.+):(\\d+):(\\d+):\\s(Error|Warning|Notice)\\s-\\s(.+)\\s\\((.+)\\)$",
+          "severity": 4
+        }
+      ]
+    },
+    {
+      "owner": "tfsec-csv",
+      "pattern": [
+        {
+          "code": 6,
+          "file": 1,
+          "line": 2,
+          "message": 6,
+          "regexp": "^(.+),(\\d+),(\\d+),(.+),(CRITICAL|HIGH|MEDIUM|LOW),(.+),false",
+          "severity": 5
+        }
+      ]
+    }
+  ]
+}

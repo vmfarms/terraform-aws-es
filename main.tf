@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 0.14"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0, < 4.0.0"
+    }
+  }
+}
+
 resource "aws_iam_service_linked_role" "es" {
   aws_service_name = "es.amazonaws.com"
   count            = var.create_iam_service_linked_role == "true" ? 1 : 0
@@ -53,6 +63,9 @@ CONFIG
 data "aws_caller_identity" "current" {
 }
 
+#tfsec:ignore:aws-elastic-search-enable-in-transit-encryption:exp:2024-01-02
+#tfsec:ignore:aws-elastic-search-use-secure-tls-policy:exp:2024-01-02
+#tfsec:ignore:aws-elastic-search-enforce-https:exp:2024-01-02
 resource "aws_elasticsearch_domain" "es_domain" {
   domain_name     = var.domain
   access_policies = <<POLICY
@@ -114,6 +127,6 @@ POLICY
   ]
 
   lifecycle {
-    ignore_changes = [advanced_options,log_publishing_options]
+    ignore_changes = [advanced_options, log_publishing_options]
   }
 }

@@ -12,29 +12,15 @@ This module will deploy a brand new AWS ElasticSearch domain to a VPC. It can be
 
 ### Pre Commit
 
-Every commit we will validate the changes with `pre-commit` cli
-
-```bash
-pre-commit run -a
-```
-
-One of our gates is checking if the code produced is valid, formatted, and safe. This will be done by `pre-commit` cli
-
-We recommend install the `pre-commit` in your local repository:
-
-```bash
-pre-commit install
-```
-
-
-How uninstall `pre-commit` in your local repository:
-
-```bash
-pre-commit uninstall
-```
+Please read the [Pre Commit](PRE_COMMIT.md) documentation for more information on how to install and use the pre-commit hooks.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
 
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.0, < 4.0.0 |
 
 ## Resources
 

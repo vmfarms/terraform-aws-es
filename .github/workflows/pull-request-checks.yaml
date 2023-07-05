@@ -1,0 +1,63 @@
+# This is the Github Actions Workflow to run Terraform checks on pull requests.
+name: Pull Request Checks
+
+# Add proper permissions to the action
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  deployments: read
+  id-token: write
+  issues: write
+  discussions: write
+  packages: none
+  pages: none
+  pull-requests: write
+  repository-projects: read
+  security-events: write
+  statuses: write
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  TF_VERSION: 1.5.1
+  TFLINT_VERSION: 0.47.0
+jobs:
+  security-checks:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Problems Matcher
+        run: |
+          echo "::add-matcher::.problems-matcher.json"
+      - name: TruffleHog OSS GitHub Action
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+      - name: tfsec GitHub Action
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          format: csv
+          additional_args: |
+            --exclude-path=.external_modules,.terraform,examples --minimum-severity=HIGH
+      - name: Checkov GitHub Action
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          skip_path: .external_modules,.terraform,examples
+          check: HIGH
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tflint_version: ${{ secrets.TFLINT_VERSION }}
+      - id: tflint
+        run: tflint -f=compact

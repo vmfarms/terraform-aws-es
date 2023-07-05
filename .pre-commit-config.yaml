@@ -1,11 +1,85 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+# See https://pre-commit.com/#install for installation instructions
+
 repos:
-- repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.81.0
-  hooks:
-    - id: terraform_docs
-      exclude: ^\.github/.*$|^\.circleci/.*$|^\.terraform/.*$|^\.terragrunt_cache/.*$|^var[s]/.*.tfvar[s]$|^modules/.*$
-      args:
-        - --args=--lockfile=false
-        - --args=--config=./.terraform-docs.yml
+  # commitlint-pre-commit-hook contains a pre-commit hook for keeping commit messages in check.
+  # It will ensure that your commit messages meet the conventional commit format. Please check
+  # commit message guidelines for more information: https://www.conventionalcommits.org/en/v1.0.0/
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.5.0
+    hooks:
+      - id: commitlint
+        stages: ["commit", "push"]
+        additional_dependencies: ["@commitlint/config-conventional"]
+
+  # TruffleHog is a tool to search Git repositories for secrets, digging deep into commit history and branches.
+  # This is effective at finding secrets accidentally committed that contain high entropy.
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.41.0
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: bash -c 'docker run --rm -v "$(pwd):/workdir" -i --rm trufflesecurity/trufflehog:latest git file:///workdir --since-commit HEAD --fail'
+        language: system
+        stages: ["commit", "push"]
+
+  # pre-commit-terraform is a swiss army knife for Terraform developers.
+  # It provides a set of hooks to help developers validate their Terraform code.
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.81.0
+    hooks:
+      - id: terraform_tfsec
+        stages: ["commit", "push"]
+        args:
+          - "--args=--exclude-path=.external_modules,.terraform,examples"
+          - "--args=--minimum-severity=HIGH"
+      - id: terraform_checkov
+        stages: ["commit", "push"]
+        args:
+          - --args=--quiet
+          - --args=--skip-path=.external_modules,.terraform,examples
+          - --args=--check=HIGH
+      - id: terraform_fmt
+        stages: ["commit", "push"]
+        args:
+          - recursive=true
+      - id: terraform_validate
+        # Exclude examples and .terraform directories
+        exclude: ^examples/|^\.terraform/
+
+        stages: ["commit", "push"]
+      - id: terraform_tflint
+        stages: ["commit", "push"]
+        args:
+          - --args=-f=compact
+      - id: terraform_docs
+        stages: ["commit", "push"]
+        args:
+          - --args=--lockfile=false
+          - --args=--config=./.terraform-docs.yml
+
+  # pre-commit-hooks is a framework for managing and maintaining multi-language pre-commit hooks.
+  # It is a framework for managing and maintaining multi-language pre-commit hooks.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-vcs-permalinks
+      - id: check-yaml
+      - id: detect-aws-credentials
+      - id: detect-private-key
+      - id: double-quote-string-fixer
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: fix-encoding-pragma
+      - id: mixed-line-ending
+        args:
+          - "--fix=auto"
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+      - id: trailing-whitespace
