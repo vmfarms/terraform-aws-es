@@ -1,5 +1,4 @@
 name: Code Scanning
-
 permissions:
   actions: read
   checks: read
@@ -14,12 +13,14 @@ permissions:
   repository-projects: read
   security-events: write
   statuses: write
-
 on:
   push:
     branches:
       - master
-      - feat*
+      - main
+      - feat/*
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
